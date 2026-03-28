@@ -4,7 +4,9 @@
       "Bash(pip install:*)",
       "Bash(python:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(pip show:*)",
+      "Bash(pyinstaller --noconfirm --onefile --windowed --name JMVPN --hidden-import keyring.backends.Windows --hidden-import pystray._win32 main.py)"
     ]
   }
 }
