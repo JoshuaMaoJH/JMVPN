@@ -11,10 +11,10 @@ _STATUS_COLORS = {
     TunnelStatus.ERROR:        ("#CC0000", "#880000"),
 }
 _STATUS_LABELS = {
-    TunnelStatus.DISCONNECTED: "未连接",
-    TunnelStatus.CONNECTING:   "连接中...",
-    TunnelStatus.CONNECTED:    "已连接",
-    TunnelStatus.ERROR:        "错误",
+    TunnelStatus.DISCONNECTED: "Disconnected",
+    TunnelStatus.CONNECTING:   "Connecting...",
+    TunnelStatus.CONNECTED:    "Connected",
+    TunnelStatus.ERROR:        "Error",
 }
 
 class ConnectPanel(ctk.CTkFrame):
@@ -37,19 +37,19 @@ class ConnectPanel(ctk.CTkFrame):
         # Server selector row
         srv_row = ctk.CTkFrame(self, fg_color="transparent")
         srv_row.pack(fill="x", **pad)
-        ctk.CTkLabel(srv_row, text="服务器", width=60, anchor="w").pack(side="left")
+        ctk.CTkLabel(srv_row, text="Server", width=60, anchor="w").pack(side="left")
         self._server_var = ctk.StringVar()
         self._server_menu = ctk.CTkOptionMenu(srv_row, variable=self._server_var,
-                                               values=["(无)"], width=180,
+                                               values=["(none)"], width=180,
                                                command=self._on_server_change)
         self._server_menu.pack(side="left", padx=4)
         self._add_btn = ctk.CTkButton(srv_row, text="+", width=28,
                                        command=self._open_add_dialog)
         self._add_btn.pack(side="left", padx=2)
-        self._edit_btn = ctk.CTkButton(srv_row, text="编辑", width=46,
+        self._edit_btn = ctk.CTkButton(srv_row, text="Edit", width=46,
                                         command=self._open_edit_dialog)
         self._edit_btn.pack(side="left", padx=2)
-        self._del_btn = ctk.CTkButton(srv_row, text="删除", width=46,
+        self._del_btn = ctk.CTkButton(srv_row, text="Delete", width=52,
                                        fg_color="#CC3333",
                                        command=self._delete_server)
         self._del_btn.pack(side="left", padx=2)
@@ -57,19 +57,19 @@ class ConnectPanel(ctk.CTkFrame):
         # Mode selector
         mode_row = ctk.CTkFrame(self, fg_color="transparent")
         mode_row.pack(fill="x", **pad)
-        ctk.CTkLabel(mode_row, text="模式", width=60, anchor="w").pack(side="left")
+        ctk.CTkLabel(mode_row, text="Mode", width=60, anchor="w").pack(side="left")
         self._mode = ctk.StringVar(value="socks5")
-        ctk.CTkRadioButton(mode_row, text="SOCKS5全局代理",
+        ctk.CTkRadioButton(mode_row, text="SOCKS5 Global Proxy",
                             variable=self._mode, value="socks5",
                             command=self._on_mode_change).pack(side="left", padx=4)
-        ctk.CTkRadioButton(mode_row, text="端口转发",
+        ctk.CTkRadioButton(mode_row, text="Port Forward",
                             variable=self._mode, value="forward",
                             command=self._on_mode_change).pack(side="left")
 
         # SOCKS5 port row (shown only in socks5 mode)
         self._socks_row = ctk.CTkFrame(self, fg_color="transparent")
         self._socks_row.pack(fill="x", **pad)
-        ctk.CTkLabel(self._socks_row, text="SOCKS5端口", width=80, anchor="w").pack(side="left")
+        ctk.CTkLabel(self._socks_row, text="SOCKS5 Port", width=80, anchor="w").pack(side="left")
         self._socks_port_var = ctk.StringVar(value="1080")
         ctk.CTkEntry(self._socks_row, textvariable=self._socks_port_var, width=80).pack(side="left")
 
@@ -78,16 +78,16 @@ class ConnectPanel(ctk.CTkFrame):
         ctrl_row.pack(fill="x", **pad)
         self._status_dot = ctk.CTkLabel(ctrl_row, text="●", text_color="gray60", width=20)
         self._status_dot.pack(side="left")
-        self._status_label = ctk.CTkLabel(ctrl_row, text="未连接", width=80, anchor="w")
+        self._status_label = ctk.CTkLabel(ctrl_row, text="Disconnected", width=80, anchor="w")
         self._status_label.pack(side="left")
-        self._connect_btn = ctk.CTkButton(ctrl_row, text="连接", width=80,
+        self._connect_btn = ctk.CTkButton(ctrl_row, text="Connect", width=80,
                                            command=self._on_connect_click)
         self._connect_btn.pack(side="right")
 
         # Latency
         lat_row = ctk.CTkFrame(self, fg_color="transparent")
         lat_row.pack(fill="x", padx=10, pady=(0, 4))
-        ctk.CTkLabel(lat_row, text="延迟", width=60, anchor="w").pack(side="left")
+        ctk.CTkLabel(lat_row, text="Latency", width=60, anchor="w").pack(side="left")
         self._latency_label = ctk.CTkLabel(lat_row, text="--", anchor="w")
         self._latency_label.pack(side="left")
 
@@ -101,12 +101,12 @@ class ConnectPanel(ctk.CTkFrame):
 
     def refresh_server_list(self):
         servers = self._config.list()
-        names = [s.name for s in servers] if servers else ["(无)"]
+        names = [s.name for s in servers] if servers else ["(none)"]
         self._server_menu.configure(values=names)
         if servers:
             self._server_var.set(servers[0].name)
         else:
-            self._server_var.set("(无)")
+            self._server_var.set("(none)")
 
     def _get_selected_server(self) -> ServerConfig | None:
         name = self._server_var.get()
@@ -143,7 +143,7 @@ class ConnectPanel(ctk.CTkFrame):
     def _do_connect(self):
         server = self._get_selected_server()
         if not server:
-            self._on_log("请先选择服务器", "warn")
+            self._on_log("Please select a server first", "warn")
             return
         try:
             port = int(self._socks_port_var.get())
@@ -158,17 +158,17 @@ class ConnectPanel(ctk.CTkFrame):
     def _do_disconnect(self):
         self._tunnel.disconnect()
         self._proxy.restore()
-        self._on_log("已断开连接")
+        self._on_log("Disconnected")
 
     def set_status(self, status: TunnelStatus):
         colors = _STATUS_COLORS[status]
         self._status_dot.configure(text_color=colors[0])
         self._status_label.configure(text=_STATUS_LABELS[status])
         if status == TunnelStatus.CONNECTED:
-            self._connect_btn.configure(text="断开")
+            self._connect_btn.configure(text="Disconnect")
             self._start_latency_probe()
         else:
-            self._connect_btn.configure(text="连接")
+            self._connect_btn.configure(text="Connect")
             self._stop_latency_probe()
             self._latency_label.configure(text="--")
 
@@ -192,5 +192,5 @@ class ConnectPanel(ctk.CTkFrame):
                 ms = int((time.monotonic() - start) * 1000)
                 self.after(0, lambda m=ms: self._latency_label.configure(text=f"{m} ms"))
             except OSError:
-                self.after(0, lambda: self._latency_label.configure(text="超时"))
+                self.after(0, lambda: self._latency_label.configure(text="Timeout"))
             time.sleep(5)

@@ -10,7 +10,7 @@ class ServerEditDialog(ctk.CTkToplevel):
                  server: ServerConfig | None = None,
                  on_save=None):
         super().__init__(master)
-        self.title("编辑服务器" if server else "添加服务器")
+        self.title("Edit Server" if server else "Add Server")
         self.resizable(False, False)
         self.grab_set()
         self._config = config
@@ -24,8 +24,8 @@ class ServerEditDialog(ctk.CTkToplevel):
     def _build_form(self):
         pad = {"padx": 10, "pady": 4}
         fields = [
-            ("名称", "name"), ("主机", "host"), ("SSH端口", "port"),
-            ("用户名", "username"), ("SOCKS5端口", "socks5_port"),
+            ("Name", "name"), ("Host", "host"), ("SSH Port", "port"),
+            ("Username", "username"), ("SOCKS5 Port", "socks5_port"),
         ]
         self._vars: dict[str, ctk.StringVar] = {}
         for label, key in fields:
@@ -39,44 +39,44 @@ class ServerEditDialog(ctk.CTkToplevel):
         # Auth type
         auth_row = ctk.CTkFrame(self, fg_color="transparent")
         auth_row.pack(fill="x", **pad)
-        ctk.CTkLabel(auth_row, text="认证方式", width=80, anchor="w").pack(side="left")
+        ctk.CTkLabel(auth_row, text="Auth", width=80, anchor="w").pack(side="left")
         self._auth_type = ctk.StringVar(value="password")
-        ctk.CTkRadioButton(auth_row, text="密码", variable=self._auth_type,
+        ctk.CTkRadioButton(auth_row, text="Password", variable=self._auth_type,
                            value="password", command=self._on_auth_change).pack(side="left", padx=4)
-        ctk.CTkRadioButton(auth_row, text="密钥文件", variable=self._auth_type,
+        ctk.CTkRadioButton(auth_row, text="Key File", variable=self._auth_type,
                            value="key", command=self._on_auth_change).pack(side="left")
 
         # Password field
         self._pass_frame = ctk.CTkFrame(self, fg_color="transparent")
         self._pass_frame.pack(fill="x", **pad)
-        ctk.CTkLabel(self._pass_frame, text="密码", width=80, anchor="w").pack(side="left")
+        ctk.CTkLabel(self._pass_frame, text="Password", width=80, anchor="w").pack(side="left")
         self._password_var = ctk.StringVar()
         ctk.CTkEntry(self._pass_frame, textvariable=self._password_var,
                      show="*", width=220).pack(side="left")
 
         # Key path field
         self._key_frame = ctk.CTkFrame(self, fg_color="transparent")
-        ctk.CTkLabel(self._key_frame, text="密钥路径", width=80, anchor="w").pack(side="left")
+        ctk.CTkLabel(self._key_frame, text="Key Path", width=80, anchor="w").pack(side="left")
         self._key_path_var = ctk.StringVar()
         ctk.CTkEntry(self._key_frame, textvariable=self._key_path_var, width=180).pack(side="left")
         ctk.CTkButton(self._key_frame, text="...", width=30,
                       command=self._browse_key).pack(side="left", padx=2)
         self._passphrase_var = ctk.StringVar()
-        ctk.CTkLabel(self._key_frame, text="密码短语", width=70, anchor="w").pack(side="left", padx=(8,0))
+        ctk.CTkLabel(self._key_frame, text="Passphrase", width=70, anchor="w").pack(side="left", padx=(8,0))
         ctk.CTkEntry(self._key_frame, textvariable=self._passphrase_var,
                      show="*", width=120).pack(side="left")
 
         # Port forwards section
-        ctk.CTkLabel(self, text="端口转发规则", anchor="w").pack(fill="x", padx=10, pady=(8, 2))
+        ctk.CTkLabel(self, text="Port Forwarding Rules", anchor="w").pack(fill="x", padx=10, pady=(8, 2))
         self._fwd_container = ctk.CTkFrame(self)
         self._fwd_container.pack(fill="x", padx=10)
-        ctk.CTkButton(self, text="+ 添加规则", command=self._add_forward_row).pack(anchor="w", padx=10, pady=4)
+        ctk.CTkButton(self, text="+ Add Rule", command=self._add_forward_row).pack(anchor="w", padx=10, pady=4)
 
         # Save / Cancel
         btn_row = ctk.CTkFrame(self, fg_color="transparent")
         btn_row.pack(fill="x", padx=10, pady=10)
-        ctk.CTkButton(btn_row, text="保存", command=self._save).pack(side="right", padx=4)
-        ctk.CTkButton(btn_row, text="取消", fg_color="gray",
+        ctk.CTkButton(btn_row, text="Save", command=self._save).pack(side="right", padx=4)
+        ctk.CTkButton(btn_row, text="Cancel", fg_color="gray",
                       command=self.destroy).pack(side="right")
 
         self._on_auth_change()
@@ -90,7 +90,7 @@ class ServerEditDialog(ctk.CTkToplevel):
             self._key_frame.pack(fill="x", padx=10, pady=4)
 
     def _browse_key(self):
-        path = filedialog.askopenfilename(title="选择私钥文件")
+        path = filedialog.askopenfilename(title="Select Private Key File")
         if path:
             self._key_path_var.set(path)
 
@@ -100,7 +100,7 @@ class ServerEditDialog(ctk.CTkToplevel):
         lport = ctk.StringVar(value=str(local))
         rhost = ctk.StringVar(value=remote_host)
         rport = ctk.StringVar(value=str(remote_port))
-        ctk.CTkLabel(row_frame, text="本地端口", width=60).pack(side="left")
+        ctk.CTkLabel(row_frame, text="Local Port", width=60).pack(side="left")
         ctk.CTkEntry(row_frame, textvariable=lport, width=60).pack(side="left", padx=2)
         ctk.CTkLabel(row_frame, text="→", width=20).pack(side="left")
         ctk.CTkEntry(row_frame, textvariable=rhost, width=100).pack(side="left", padx=2)

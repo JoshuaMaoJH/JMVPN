@@ -52,7 +52,7 @@ class App(ctk.CTk):
                 if self._connect_panel._mode.get() == "socks5":
                     port = int(self._connect_panel._socks_port_var.get())
                     self._proxy.enable("127.0.0.1", port)
-                    self._on_log(f"系统代理已启用 → 127.0.0.1:{port}")
+                    self._on_log(f"System proxy enabled → 127.0.0.1:{port}")
             elif status == TunnelStatus.DISCONNECTED:
                 self._proxy.restore()
             self._update_tray_icon(status)
@@ -67,8 +67,8 @@ class App(ctk.CTk):
 
     def _setup_tray(self):
         menu = pystray.Menu(
-            pystray.MenuItem("显示", self._show_window),
-            pystray.MenuItem("退出", self._quit_app),
+            pystray.MenuItem("Show", self._show_window),
+            pystray.MenuItem("Quit", self._quit_app),
         )
         img = self._make_tray_image(False)
         self._tray = pystray.Icon("JMVPN", img, "JMVPN", menu)

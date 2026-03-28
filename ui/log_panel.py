@@ -7,7 +7,7 @@ class LogPanel(ctk.CTkFrame):
         self._expanded = False
 
         self._toggle_btn = ctk.CTkButton(
-            self, text="▶ 日志", anchor="w", fg_color="transparent",
+            self, text="▶ Log", anchor="w", fg_color="transparent",
             text_color=("gray10", "gray90"), hover_color=("gray80", "gray30"),
             command=self._toggle
         )
@@ -19,10 +19,10 @@ class LogPanel(ctk.CTkFrame):
     def _toggle(self):
         if self._expanded:
             self._textbox.pack_forget()
-            self._toggle_btn.configure(text="▶ 日志")
+            self._toggle_btn.configure(text="▶ Log")
         else:
             self._textbox.pack(fill="both", expand=True, padx=4, pady=(0, 4))
-            self._toggle_btn.configure(text="▼ 日志")
+            self._toggle_btn.configure(text="▼ Log")
         self._expanded = not self._expanded
 
     def add_message(self, message: str, level: str = "info") -> None:

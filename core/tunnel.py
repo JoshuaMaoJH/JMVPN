@@ -224,7 +224,7 @@ class TunnelManager:
         elif self._server.forwards:
             port = self._server.forwards[0].local_port
         else:
-            self._on_log("端口转发模式下未配置任何规则，无法探测连接", "warn")
+            self._on_log("No port forwarding rules configured, cannot probe connection", "warn")
             self._set_status(TunnelStatus.ERROR)
             return
         for _ in range(30):
