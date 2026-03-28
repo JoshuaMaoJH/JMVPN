@@ -154,7 +154,6 @@ class ServerEditDialog(ctk.CTkToplevel):
             )
             server_id = self._server.id
         else:
-            from core.config import ServerConfig
             s = ServerConfig(
                 name=self._vars["name"].get(),
                 host=self._vars["host"].get(),

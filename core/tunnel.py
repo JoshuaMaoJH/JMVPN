@@ -74,6 +74,8 @@ class ParamikoTunnel:
         self._transport: paramiko.Transport | None = None
         self._socks5: Socks5Server | None = None
         self._forward_threads: list[threading.Thread] = []
+        self._disconnecting = False
+        self._forward_sockets: list[socket.socket] = []
 
     def connect(self) -> None:
         credential = get_credential(self._server.id)
@@ -84,7 +86,7 @@ class ParamikoTunnel:
         if self._server.auth_type == "password":
             self._transport.auth_password(self._server.username, credential or "")
         else:  # key with passphrase
-            key = paramiko.RSAKey.from_private_key_file(
+            key = paramiko.PKey.from_private_key_file(
                 self._server.key_path, password=credential
             )
             self._transport.auth_publickey(self._server.username, key)
@@ -113,7 +115,9 @@ class ParamikoTunnel:
         srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         srv.bind(("127.0.0.1", local_port))
         srv.listen(10)
-        while self._transport and self._transport.is_active():
+        srv.settimeout(1.0)
+        self._forward_sockets.append(srv)
+        while self._transport and self._transport.is_active() and not self._disconnecting:
             try:
                 client, _ = srv.accept()
                 chan = self._transport.open_channel(
@@ -122,9 +126,13 @@ class ParamikoTunnel:
                 threading.Thread(
                     target=self._relay_forward, args=(client, chan), daemon=True
                 ).start()
+            except socket.timeout:
+                continue
             except OSError:
                 break
         srv.close()
+        if srv in self._forward_sockets:
+            self._forward_sockets.remove(srv)
 
     def _relay_forward(self, sock: socket.socket, chan: paramiko.Channel) -> None:
         import select
@@ -150,9 +158,16 @@ class ParamikoTunnel:
     def _watch_transport(self) -> None:
         while self._transport and self._transport.is_active():
             time.sleep(2)
-        self._on_disconnect()
+        if not self._disconnecting:
+            self._on_disconnect()
 
     def disconnect(self) -> None:
+        self._disconnecting = True
+        for srv_sock in self._forward_sockets:
+            try:
+                srv_sock.close()
+            except OSError:
+                pass
         if self._socks5:
             self._socks5.stop()
         if self._transport:
@@ -204,7 +219,14 @@ class TunnelManager:
 
     def _probe_until_connected(self) -> None:
         assert self._server is not None
-        port = self._server.socks5_port if self._mode == "socks5" else self._server.forwards[0].local_port
+        if self._mode == "socks5":
+            port = self._server.socks5_port
+        elif self._server.forwards:
+            port = self._server.forwards[0].local_port
+        else:
+            self._on_log("端口转发模式下未配置任何规则，无法探测连接", "warn")
+            self._set_status(TunnelStatus.ERROR)
+            return
         for _ in range(30):
             time.sleep(1)
             try:

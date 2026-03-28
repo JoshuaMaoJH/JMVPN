@@ -147,7 +147,9 @@ class ConnectPanel(ctk.CTkFrame):
             return
         try:
             port = int(self._socks_port_var.get())
-            server.socks5_port = port
+            if port != server.socks5_port:
+                self._config.update(server.id, socks5_port=port)
+                server = self._config.get(server.id)
         except ValueError:
             pass
         mode = self._mode.get()
