@@ -4,6 +4,7 @@ from typing import Callable
 import paramiko
 from core.config import ServerConfig
 from core.socks5 import Socks5Server
+from core.http_proxy import HttpConnectProxy
 from utils.keyring_helper import get_credential
 
 class TunnelStatus(Enum):
@@ -187,7 +188,13 @@ class TunnelManager:
         self._tunnel: SubprocessTunnel | ParamikoTunnel | None = None
         self._server: ServerConfig | None = None
         self._mode: str | None = None
+        self._http_proxy: HttpConnectProxy | None = None
         self.status = TunnelStatus.DISCONNECTED
+
+    @property
+    def http_proxy_port(self) -> int | None:
+        """Port of the local HTTP CONNECT proxy, or None if not running."""
+        return self._http_proxy.port if self._http_proxy else None
 
     def connect(self, server: ServerConfig, mode: str) -> None:
         self._server = server
@@ -206,6 +213,9 @@ class TunnelManager:
             self._set_status(TunnelStatus.ERROR)
 
     def disconnect(self) -> None:
+        if self._http_proxy:
+            self._http_proxy.stop()
+            self._http_proxy = None
         if self._tunnel:
             self._tunnel.disconnect()
         self._set_status(TunnelStatus.DISCONNECTED)
@@ -231,6 +241,13 @@ class TunnelManager:
             time.sleep(1)
             try:
                 with socket.create_connection(("127.0.0.1", port), timeout=1):
+                    # SOCKS5 is up — start HTTP CONNECT proxy on top of it
+                    http_port = port + 1 if self._mode == "socks5" else 1081
+                    self._http_proxy = HttpConnectProxy(
+                        socks5_port=self._server.socks5_port, bind_port=http_port
+                    )
+                    self._http_proxy.start()
+                    self._on_log(f"HTTP proxy listening on 127.0.0.1:{http_port}")
                     self._set_status(TunnelStatus.CONNECTED)
                     self._on_log("Tunnel established")
                     return

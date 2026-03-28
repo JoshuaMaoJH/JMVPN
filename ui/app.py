@@ -50,9 +50,10 @@ class App(ctk.CTk):
             self._connect_panel.set_status(status)
             if status == TunnelStatus.CONNECTED:
                 if self._connect_panel._mode.get() == "socks5":
-                    port = int(self._connect_panel._socks_port_var.get())
-                    self._proxy.enable("127.0.0.1", port)
-                    self._on_log(f"System proxy enabled → 127.0.0.1:{port}")
+                    http_port = self._tunnel.http_proxy_port
+                    if http_port:
+                        self._proxy.enable("127.0.0.1", http_port)
+                        self._on_log(f"System proxy enabled → 127.0.0.1:{http_port}")
             elif status == TunnelStatus.DISCONNECTED:
                 self._proxy.restore()
             self._update_tray_icon(status)

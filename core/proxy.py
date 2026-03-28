@@ -43,9 +43,9 @@ class SystemProxy:
         _notify_windows()
 
     def enable(self, host: str, port: int) -> None:
+        """Set system proxy to an HTTP CONNECT proxy at host:port."""
         self._original = self._read_current()
-        # Use per-protocol format so SOCKS5 is recognised by Windows
-        self._write(_ProxyState(enabled=1, server=f"socks={host}:{port}"))
+        self._write(_ProxyState(enabled=1, server=f"{host}:{port}"))
 
     def restore(self) -> None:
         if self._original is not None:
