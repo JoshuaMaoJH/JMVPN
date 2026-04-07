@@ -196,9 +196,10 @@ class TunnelManager:
         """Port of the local HTTP CONNECT proxy, or None if not running."""
         return self._http_proxy.port if self._http_proxy else None
 
-    def connect(self, server: ServerConfig, mode: str) -> None:
+    def connect(self, server: ServerConfig, mode: str, proxy_port: int = 1081) -> None:
         self._server = server
         self._mode = mode
+        self._proxy_port = proxy_port
         self._set_status(TunnelStatus.CONNECTING)
         use_subprocess = (server.auth_type == "key" and not get_credential(server.id))
         if use_subprocess:
@@ -241,13 +242,12 @@ class TunnelManager:
             time.sleep(1)
             try:
                 with socket.create_connection(("127.0.0.1", port), timeout=1):
-                    # SOCKS5 is up — start HTTP CONNECT proxy on top of it
-                    http_port = port + 1 if self._mode == "socks5" else 1081
-                    self._http_proxy = HttpConnectProxy(
-                        socks5_port=self._server.socks5_port, bind_port=http_port
-                    )
-                    self._http_proxy.start()
-                    self._on_log(f"HTTP proxy listening on 127.0.0.1:{http_port}")
+                    if self._mode == "socks5":
+                        self._http_proxy = HttpConnectProxy(
+                            socks5_port=self._server.socks5_port, bind_port=self._proxy_port
+                        )
+                        self._http_proxy.start()
+                        self._on_log(f"HTTP proxy listening on 127.0.0.1:{self._proxy_port}")
                     self._set_status(TunnelStatus.CONNECTED)
                     self._on_log("Tunnel established")
                     return

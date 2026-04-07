@@ -1,4 +1,4 @@
-import atexit, threading
+import atexit, os, sys, threading
 import customtkinter as ctk
 from PIL import Image, ImageDraw
 import pystray
@@ -18,6 +18,11 @@ class App(ctk.CTk):
         self.title("JMVPN")
         self.geometry("420x480")
         self.minsize(380, 400)
+
+        # Set window/taskbar icon
+        icon_path = os.path.join(getattr(sys, '_MEIPASS', os.path.dirname(os.path.dirname(__file__))), "icon.ico")
+        if os.path.exists(icon_path):
+            self.iconbitmap(icon_path)
 
         self._config = ConfigManager()
         self._proxy = SystemProxy()

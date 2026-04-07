@@ -72,6 +72,9 @@ class ConnectPanel(ctk.CTkFrame):
         ctk.CTkLabel(self._socks_row, text="SOCKS5 Port", width=80, anchor="w").pack(side="left")
         self._socks_port_var = ctk.StringVar(value="1080")
         ctk.CTkEntry(self._socks_row, textvariable=self._socks_port_var, width=80).pack(side="left")
+        ctk.CTkLabel(self._socks_row, text="Proxy Port", width=80, anchor="w").pack(side="left", padx=(10, 0))
+        self._proxy_port_var = ctk.StringVar(value="1081")
+        ctk.CTkEntry(self._socks_row, textvariable=self._proxy_port_var, width=80).pack(side="left")
 
         # Connect button + status
         ctrl_row = ctk.CTkFrame(self, fg_color="transparent")
@@ -153,7 +156,11 @@ class ConnectPanel(ctk.CTkFrame):
         except ValueError:
             pass
         mode = self._mode.get()
-        self._tunnel.connect(server, mode)
+        try:
+            proxy_port = int(self._proxy_port_var.get())
+        except ValueError:
+            proxy_port = 1081
+        self._tunnel.connect(server, mode, proxy_port=proxy_port)
 
     def _do_disconnect(self):
         self._tunnel.disconnect()
