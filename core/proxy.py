@@ -1,8 +1,11 @@
 import ctypes
+import os
 import winreg
 from dataclasses import dataclass
 
 _REG_PATH = r"Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+_ENV_VARS = ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY",
+             "http_proxy", "https_proxy", "all_proxy")
 _INTERNET_OPTION_SETTINGS_CHANGED = 39
 _INTERNET_OPTION_REFRESH = 37
 
@@ -43,9 +46,12 @@ class SystemProxy:
         _notify_windows()
 
     def enable(self, host: str, port: int) -> None:
-        """Set system proxy to an HTTP CONNECT proxy at host:port."""
+        """Set system proxy and environment variables to an HTTP CONNECT proxy at host:port."""
         self._original = self._read_current()
         self._write(_ProxyState(enabled=1, server=f"{host}:{port}"))
+        proxy_url = f"http://{host}:{port}"
+        for var in _ENV_VARS:
+            os.environ[var] = proxy_url
 
     def restore(self) -> None:
         if self._original is not None:
@@ -53,3 +59,5 @@ class SystemProxy:
             self._original = None
         else:
             self._write(_ProxyState(enabled=0, server=""))
+        for var in _ENV_VARS:
+            os.environ.pop(var, None)
