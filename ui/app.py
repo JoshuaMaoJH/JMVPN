@@ -59,6 +59,7 @@ class App(ctk.CTk):
                     if http_port:
                         self._proxy.enable("127.0.0.1", http_port)
                         self._on_log(f"System proxy enabled → 127.0.0.1:{http_port}")
+                        self._on_log("Environment variables set (HTTP_PROXY, HTTPS_PROXY, ALL_PROXY)")
             elif status == TunnelStatus.DISCONNECTED:
                 self._proxy.restore()
             self._update_tray_icon(status)
