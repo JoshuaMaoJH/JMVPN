@@ -12,7 +12,10 @@
       "Bash(C:Python313python.exe -m pip install pyinstaller -q)",
       "Bash(C:Python313python.exe -m PyInstaller --noconfirm --onefile --windowed --name JMVPN --collect-all customtkinter --hidden-import keyring.backends.Windows --hidden-import pystray._win32 \"G:/PythonProjects/JMVPN/main.py\")",
       "Bash(taskkill /f /im JMVPN.exe)",
-      "Bash(rm -f \"G:/PythonProjects/JMVPN/dist/JMVPN.exe\")"
+      "Bash(rm -f \"G:/PythonProjects/JMVPN/dist/JMVPN.exe\")",
+      "Bash(where iscc:*)",
+      "Read(//c/Program Files \\(x86\\)/Inno Setup 6/**)",
+      "Read(//c/Program Files/Inno Setup 6/**)"
     ]
   }
 }
