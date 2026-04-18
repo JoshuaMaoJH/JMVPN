@@ -24,6 +24,7 @@ class ServerConfig:
     key_path: str
     socks5_port: int
     forwards: list[ForwardRule]
+    timezone: str = ""  # Windows timezone ID, e.g. "Pacific Standard Time"
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
 
@@ -39,6 +40,7 @@ def _server_from_dict(d: dict) -> ServerConfig:
         key_path=d.get("key_path", ""),
         socks5_port=d.get("socks5_port", 1080),
         forwards=forwards,
+        timezone=d.get("timezone", ""),
     )
 
 

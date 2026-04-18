@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import filedialog
 from core.config import ServerConfig, ForwardRule, ConfigManager
+from core.timezone import get_all_timezones
 from utils.keyring_helper import set_credential, delete_credential
 
 class ServerEditDialog(ctk.CTkToplevel):
@@ -35,6 +36,15 @@ class ServerEditDialog(ctk.CTkToplevel):
             var = ctk.StringVar()
             ctk.CTkEntry(row, textvariable=var, width=220).pack(side="left")
             self._vars[key] = var
+
+        # Timezone
+        tz_row = ctk.CTkFrame(self, fg_color="transparent")
+        tz_row.pack(fill="x", **pad)
+        ctk.CTkLabel(tz_row, text="Timezone", width=80, anchor="w").pack(side="left")
+        self._tz_values = ["(no change)"] + get_all_timezones()
+        self._tz_var = ctk.StringVar(value="(no change)")
+        ctk.CTkOptionMenu(tz_row, variable=self._tz_var,
+                          values=self._tz_values, width=220).pack(side="left")
 
         # Auth type
         auth_row = ctk.CTkFrame(self, fg_color="transparent")
@@ -123,6 +133,7 @@ class ServerEditDialog(ctk.CTkToplevel):
         self._vars["socks5_port"].set(str(server.socks5_port))
         self._auth_type.set(server.auth_type)
         self._key_path_var.set(server.key_path)
+        self._tz_var.set(server.timezone if server.timezone else "(no change)")
         self._on_auth_change()
         for rule in server.forwards:
             self._add_forward_row(rule.local_port, rule.remote_host, rule.remote_port)
@@ -140,6 +151,8 @@ class ServerEditDialog(ctk.CTkToplevel):
                 continue
 
         auth_type = self._auth_type.get()
+        tz = self._tz_var.get()
+        timezone = "" if tz == "(no change)" else tz
         if self._server:
             self._config.update(
                 self._server.id,
@@ -151,6 +164,7 @@ class ServerEditDialog(ctk.CTkToplevel):
                 key_path=self._key_path_var.get(),
                 socks5_port=int(self._vars["socks5_port"].get() or "1080"),
                 forwards=forwards,
+                timezone=timezone,
             )
             server_id = self._server.id
         else:
@@ -163,6 +177,7 @@ class ServerEditDialog(ctk.CTkToplevel):
                 key_path=self._key_path_var.get(),
                 socks5_port=int(self._vars["socks5_port"].get() or "1080"),
                 forwards=forwards,
+                timezone=timezone,
             )
             self._config.add(s)
             server_id = s.id

@@ -482,6 +482,7 @@
    'PYMODULE'),
   ('core.proxy', 'G:\\PythonProjects\\JMVPN\\core\\proxy.py', 'PYMODULE'),
   ('core.socks5', 'G:\\PythonProjects\\JMVPN\\core\\socks5.py', 'PYMODULE'),
+  ('core.timezone', 'G:\\PythonProjects\\JMVPN\\core\\timezone.py', 'PYMODULE'),
   ('core.tunnel', 'G:\\PythonProjects\\JMVPN\\core\\tunnel.py', 'PYMODULE'),
   ('cryptography',
    'C:\\Users\\mjxmb\\AppData\\Roaming\\Python\\Python313\\site-packages\\cryptography\\__init__.py',

@@ -6,6 +6,7 @@ import pystray
 from core.config import ConfigManager
 from core.tunnel import TunnelManager, TunnelStatus
 from core.proxy import SystemProxy
+from core.timezone import TimezoneManager
 from ui.connect_panel import ConnectPanel
 from ui.log_panel import LogPanel
 
@@ -26,6 +27,7 @@ class App(ctk.CTk):
 
         self._config = ConfigManager()
         self._proxy = SystemProxy()
+        self._tz = TimezoneManager()
         self._tunnel = TunnelManager(
             on_log=self._on_log,
             on_status_change=self._on_status_change,
@@ -60,8 +62,16 @@ class App(ctk.CTk):
                         self._proxy.enable("127.0.0.1", http_port)
                         self._on_log(f"System proxy enabled → 127.0.0.1:{http_port}")
                         self._on_log("Environment variables set (HTTP_PROXY, HTTPS_PROXY, ALL_PROXY)")
+                # Switch timezone if configured
+                server = self._connect_panel._get_selected_server()
+                if server and server.timezone:
+                    if self._tz.switch(server.timezone):
+                        self._on_log(f"Timezone switched to {server.timezone}")
+                    else:
+                        self._on_log(f"Failed to switch timezone to {server.timezone}", "warn")
             elif status == TunnelStatus.DISCONNECTED:
                 self._proxy.restore()
+                self._tz.restore()
             self._update_tray_icon(status)
         self.after(0, _update)
 
@@ -98,5 +108,6 @@ class App(ctk.CTk):
     def _cleanup(self):
         self._tunnel.disconnect()
         self._proxy.restore()
+        self._tz.restore()
         if self._tray:
             self._tray.stop()

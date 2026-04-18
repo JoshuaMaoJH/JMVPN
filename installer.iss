@@ -1,7 +1,7 @@
 ; JMVPN Installer Script for Inno Setup 6
 
 #define AppName "JMVPN"
-#define AppVersion "2.1"
+#define AppVersion "2.2"
 #define AppPublisher "JoshuaMaoJH"
 #define AppExeName "JMVPN.exe"
 
